@@ -32,10 +32,11 @@ function fileToGenerativePart(filePath, mimeType) {
   };
 }
 
-function parseBulletPoints(prompt) {
-  const bulletPoint = />> <</;
-  let prevNum = 2;
-  let nxtNum = prompt.search(bulletPoint);
+function parseBulletPoints(prompt, offset) {
+  console.log(prompt);
+  const breaker = />>/;
+  let prevNum = 0;
+  let nxtNum = prompt.search(breaker);
   let steps = [];
 
   if (nxtNum == -1) {
@@ -44,15 +45,28 @@ function parseBulletPoints(prompt) {
   }
 
   do {
-    let line = prompt.substring(prevNum, nxtNum);
-    console.log("LINE: " + line);
-    console.log(prevNum + " : " + nxtNum);
-    prevNum = nxtNum;
+    let line = prompt.substring(prevNum + offset, nxtNum);
+    //let temp = "<li>" + line + "</li>"; // why does this not work
     steps.push(line);
-    nxtNum = prompt.indexOf(bulletPoint, prevNum);
-  } while (nxtNum != -1);
+    //console.log("LINE: " + line);
+    //console.log(prevNum + " : " + nxtNum);
+    prevNum = prompt.indexOf("<<", nxtNum);
+    nxtNum = prompt.indexOf(">>", prevNum);
+  } while (prevNum > 0);
 
-  console.log(steps);
+  let allSteps = "<ol>";
+  //console.log(allSteps);
+  for (let i = 0; i < steps.length; ++i) {
+    allSteps += "<li>";
+    allSteps += steps[i];
+    allSteps += "</li>";
+    //console.log(allSteps);
+  }
+  allSteps += "</ol>";
+
+  //console.log(steps);
+  //console.log(allSteps);
+  return allSteps;
 }
 
 // Serve the HTML form
@@ -79,21 +93,37 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       await model.generateContent([getObjName, ...imageParts])
     ).response.text();
 
+    const getReqItems =
+      "please give me the list of items required to create/produce/cook/build/craft " +
+      object +
+      " and include measurements needed. do not add any filler outside of << and >>. all items need to be in << and >> like <<item>>";
+    const items = (await model.generateContent(getReqItems)).response.text();
+    const tableOfItems = parseBulletPoints(items, 2);
+
     const getObjSteps =
       "please tell me how to create/produce/cook/build/craft " +
       object +
       " in simple, step by step instructions. do not use markdown notation. wrap each step in << and >>. for example <<1. cook the pasta>>. do not add any filler text outside of << and >>";
     const steps = (await model.generateContent(getObjSteps)).response.text();
+    const tableOfSteps = parseBulletPoints(steps, 5);
 
     const getRelatedObj =
-      "please give me 3 other things i could make, related to " + object;
+      "please give me 3 other things i could make, related to " +
+      object +
+      " and wrap each step in << and >>. for example, <<item>>. do not add anything outside of << and >>";
     const relatedObj = (
       await model.generateContent(getRelatedObj)
     ).response.text();
+    const tableOfRelatedItems = parseBulletPoints(relatedObj, 2);
 
-    parseBulletPoints(steps);
+    //try {
+    //  parseBulletPoints(steps);
+    //} catch (error) {
+    //  console.log("WHYYYYY");
+    //}
 
-    res.send(`
+    let page =
+      `
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -105,13 +135,19 @@ app.post("/upload", upload.single("file"), async (req, res) => {
   </head>
   <body>
 	<h1>How to make ${object}</h1>
-	<h2>Steps</h2>
-	<p>${steps} </p>
+	<h2>Items Needed</h2>` +
+      tableOfItems +
+      `<h2>Steps</h2>` +
+      tableOfSteps +
+      `
 	<h2>Related Items</h2>
-	<p>${relatedObj}</p>
-  </body>
+	<p>Here are 3 other cool things you could make related to ${object}:</p>` +
+      tableOfRelatedItems +
+      `</body>
 </html>
-`);
+`;
+
+    res.send(page);
   } catch (error) {
     res.status(500).send("Error processing the file with AI.");
   } finally {
