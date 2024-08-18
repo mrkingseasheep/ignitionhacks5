@@ -48,29 +48,27 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 
   const filePart = fileToGenerativePart(filePath, mimeType);
 
-  const promptThing =
-    "give me the name of this object, for instance if its a picture of a desk, return 'a desk'"; //name the object
-  const prompt =
-    "How would I build the object in the picture, put it into steps, and put every step on a new line.  Afterward, recommend three other things that could be made using similar methods."; //how to make it
-  const imageParts = [filePart];
-  const suggesstion =
-    "give me 3 other things i could make, related to " + promptThing;
-
   try {
-    const generatedThing = await model.generateContent([
-      promptThing,
-      ...imageParts,
-    ]);
-    const thing = await generatedThing.response.text();
-    const generatedContent = await model.generateContent([
-      prompt,
-      ...imageParts,
-    ]);
-    const text = await generatedContent.response.text();
-    const result = (await model.generateContent(suggesstion)).response.text();
+    const imageParts = [filePart];
+    const getObjName = "please give me the name of the object in the picture";
+    const object = (
+      await model.generateContent([getObjName, ...imageParts])
+    ).response.text();
+
+    const getObjSteps =
+      "please tell me how to create/produce/cook/build/craft or make " + object;
+    const steps = (
+      await model.generateContent([getObjSteps, ...imageParts])
+    ).response.text();
+
+    const getRelatedObj =
+      "give me 3 other things i could make, related to " + object;
+    const relatedObj = (
+      await model.generateContent(getRelatedObj)
+    ).response.text();
 
     res.send(
-      `<h1>How to make ${thing}</h1><p>${text} </p> <br> <p>${result}</p>`,
+      `<h1>How to make ${object}</h1><p>${steps} </p> <br> <p>${relatedObj}</p>`,
     );
   } catch (error) {
     res.status(500).send("Error processing the file with AI.");
