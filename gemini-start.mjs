@@ -67,9 +67,26 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       await model.generateContent(getRelatedObj)
     ).response.text();
 
-    res.send(
+    /*res.send(
       `<h1>How to make ${object}</h1><p>${steps} </p> <br> <p>${relatedObj}</p>`,
-    );
+    );8?*/
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>creativity</title>
+          <link rel="stylesheet" href="/styles.css">
+      </head>
+      <body>
+          <div class="container">
+              <h1>How to make ${object}</h1>
+              <p>${steps} </p> <br> <p>${relatedObj}</p>
+          </div>
+      </body>
+      </html>
+    `);
   } catch (error) {
     res.status(500).send("Error processing the file with AI.");
   } finally {
