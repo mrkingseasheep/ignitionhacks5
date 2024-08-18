@@ -33,9 +33,10 @@ function fileToGenerativePart(filePath, mimeType) {
 }
 
 function parseBulletPoints(prompt) {
-  const bulletPoint = />> <</;
-  let prevNum = 2;
-  let nxtNum = prompt.search(bulletPoint);
+  console.log(prompt);
+  const breaker = />>/;
+  let prevNum = 0;
+  let nxtNum = prompt.search(breaker);
   let steps = [];
 
   if (nxtNum == -1) {
@@ -44,15 +45,28 @@ function parseBulletPoints(prompt) {
   }
 
   do {
-    let line = prompt.substring(prevNum, nxtNum);
-    console.log("LINE: " + line);
-    console.log(prevNum + " : " + nxtNum);
-    prevNum = nxtNum;
+    let line = prompt.substring(prevNum + 5, nxtNum);
+    //let temp = "<li>" + line + "</li>"; // why does this not work
     steps.push(line);
-    nxtNum = prompt.indexOf(bulletPoint, prevNum);
-  } while (nxtNum != -1);
+    //console.log("LINE: " + line);
+    //console.log(prevNum + " : " + nxtNum);
+    prevNum = prompt.indexOf("<<", nxtNum);
+    nxtNum = prompt.indexOf(">>", prevNum);
+  } while (prevNum > 0);
 
-  console.log(steps);
+  let allSteps = "<ol>";
+  //console.log(allSteps);
+  for (let i = 0; i < steps.length; ++i) {
+    allSteps += "<li>";
+    allSteps += steps[i];
+    allSteps += "</li>";
+    //console.log(allSteps);
+  }
+  allSteps += "</ol>";
+
+  //console.log(steps);
+  //console.log(allSteps);
+  return allSteps;
 }
 
 // Serve the HTML form
@@ -90,10 +104,16 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     const relatedObj = (
       await model.generateContent(getRelatedObj)
     ).response.text();
+    const tableOfSteps = parseBulletPoints(steps);
 
-    parseBulletPoints(steps);
+    //try {
+    //  parseBulletPoints(steps);
+    //} catch (error) {
+    //  console.log("WHYYYYY");
+    //}
 
-    res.send(`
+    let page =
+      `
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -105,13 +125,16 @@ app.post("/upload", upload.single("file"), async (req, res) => {
   </head>
   <body>
 	<h1>How to make ${object}</h1>
-	<h2>Steps</h2>
-	<p>${steps} </p>
+	<h2>Steps</h2>` +
+      tableOfSteps +
+      `
 	<h2>Related Items</h2>
 	<p>${relatedObj}</p>
   </body>
 </html>
-`);
+`;
+
+    res.send(page);
   } catch (error) {
     res.status(500).send("Error processing the file with AI.");
   } finally {
