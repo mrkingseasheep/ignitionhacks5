@@ -32,6 +32,29 @@ function fileToGenerativePart(filePath, mimeType) {
   };
 }
 
+function parseBulletPoints(prompt) {
+  const bulletPoint = />> <</;
+  let prevNum = 2;
+  let nxtNum = prompt.search(bulletPoint);
+  let steps = [];
+
+  if (nxtNum == -1) {
+    console.log("Did not have any steps... uh oh");
+    return prompt;
+  }
+
+  do {
+    let line = prompt.substring(prevNum, nxtNum);
+    console.log("LINE: " + line);
+    console.log(prevNum + " : " + nxtNum);
+    prevNum = nxtNum;
+    steps.push(line);
+    nxtNum = prompt.indexOf(bulletPoint, prevNum);
+  } while (nxtNum != -1);
+
+  console.log(steps);
+}
+
 // Serve the HTML form
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
@@ -50,7 +73,8 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 
   try {
     const imageParts = [filePart];
-    const getObjName = "please give me the name of the object in the picture";
+    const getObjName =
+      "please give me the name of the object in the picture, do not capitalize the first word unless it is a formal name";
     const object = (
       await model.generateContent([getObjName, ...imageParts])
     ).response.text();
@@ -58,7 +82,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     const getObjSteps =
       "please tell me how to create/produce/cook/build/craft " +
       object +
-      " in simple, step by step instructions";
+      " in simple, step by step instructions. do not use markdown notation. wrap each step in << and >>. for example <<1. cook the pasta>>. do not add any filler text outside of << and >>";
     const steps = (await model.generateContent(getObjSteps)).response.text();
 
     const getRelatedObj =
@@ -67,9 +91,27 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       await model.generateContent(getRelatedObj)
     ).response.text();
 
-    res.send(
-      `<h1>How to make ${object}</h1><p>${steps} </p> <br> <p>${relatedObj}</p>`,
-    );
+    parseBulletPoints(steps);
+
+    res.send(`
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>How to do anything!</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+	<h1>How to make ${object}</h1>
+	<h2>Steps</h2>
+	<p>${steps} </p>
+	<h2>Related Items</h2>
+	<p>${relatedObj}</p>
+  </body>
+</html>
+`);
   } catch (error) {
     res.status(500).send("Error processing the file with AI.");
   } finally {
