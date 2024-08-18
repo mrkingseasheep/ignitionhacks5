@@ -32,7 +32,7 @@ function fileToGenerativePart(filePath, mimeType) {
   };
 }
 
-function parseBulletPoints(prompt) {
+function parseBulletPoints(prompt, offset) {
   console.log(prompt);
   const breaker = />>/;
   let prevNum = 0;
@@ -45,7 +45,7 @@ function parseBulletPoints(prompt) {
   }
 
   do {
-    let line = prompt.substring(prevNum + 5, nxtNum);
+    let line = prompt.substring(prevNum + offset, nxtNum);
     //let temp = "<li>" + line + "</li>"; // why does this not work
     steps.push(line);
     //console.log("LINE: " + line);
@@ -93,18 +93,28 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       await model.generateContent([getObjName, ...imageParts])
     ).response.text();
 
+    const getReqItems =
+      "please give me the list of items required to create/produce/cook/build/craft " +
+      object +
+      " and include measurements needed. do not add any filler outside of << and >>. all items need to be in << and >> like <<item>>";
+    const items = (await model.generateContent(getReqItems)).response.text();
+    const tableOfItems = parseBulletPoints(items, 2);
+
     const getObjSteps =
       "please tell me how to create/produce/cook/build/craft " +
       object +
       " in simple, step by step instructions. do not use markdown notation. wrap each step in << and >>. for example <<1. cook the pasta>>. do not add any filler text outside of << and >>";
     const steps = (await model.generateContent(getObjSteps)).response.text();
+    const tableOfSteps = parseBulletPoints(steps, 5);
 
     const getRelatedObj =
-      "please give me 3 other things i could make, related to " + object;
+      "please give me 3 other things i could make, related to " +
+      object +
+      " and wrap each step in << and >>. for example, <<item>>. do not add anything outside of << and >>";
     const relatedObj = (
       await model.generateContent(getRelatedObj)
     ).response.text();
-    const tableOfSteps = parseBulletPoints(steps);
+    const tableOfRelatedItems = parseBulletPoints(relatedObj, 2);
 
     //try {
     //  parseBulletPoints(steps);
@@ -125,12 +135,15 @@ app.post("/upload", upload.single("file"), async (req, res) => {
   </head>
   <body>
 	<h1>How to make ${object}</h1>
-	<h2>Steps</h2>` +
+	<h2>Items Needed</h2>` +
+      tableOfItems +
+      `<h2>Steps</h2>` +
       tableOfSteps +
       `
 	<h2>Related Items</h2>
-	<p>${relatedObj}</p>
-  </body>
+	<p>Here are 3 other cool things you could make related to ${object}:</p>` +
+      tableOfRelatedItems +
+      `</body>
 </html>
 `;
 
