@@ -56,13 +56,13 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     ).response.text();
 
     const getObjSteps =
-      "please tell me how to create/produce/cook/build/craft or make " + object;
-    const steps = (
-      await model.generateContent([getObjSteps, ...imageParts])
-    ).response.text();
+      "please tell me how to create/produce/cook/build/craft " +
+      object +
+      " in simple, step by step instructions";
+    const steps = (await model.generateContent(getObjSteps)).response.text();
 
     const getRelatedObj =
-      "give me 3 other things i could make, related to " + object;
+      "please give me 3 other things i could make, related to " + object;
     const relatedObj = (
       await model.generateContent(getRelatedObj)
     ).response.text();
