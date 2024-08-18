@@ -1,15 +1,61 @@
 
 body {
-    background-color: lightblue;
+    background-color: rgb(200, 220, 226);
   }
   
   h1 {
-    color: white;
+    color: rgb(0, 0, 0);
     text-align: center;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   }
   
+  h2 {
+    color: rgb(33, 38, 77);
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    
+  }
+
   p {
     font-family: verdana;
     font-size: 20px;
-    color: black;
+    color: rgb(72, 71, 139);
   }
+  button {
+    background-color: #007BFF; /* Primary Blue */
+    color: #FFFFFF; /* White text */
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    height: 48px
+    
+}
+
+/* Hover effect */
+button:hover {
+    background-color: #0056b3; /* Darker Blue */
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4); /* Blue shadow */
+}
+input {
+  background-color: #007BFF; /* Primary Blue */
+  color: #FFFFFF; /* White text */
+  padding: 12px 24px;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+
+

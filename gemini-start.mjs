@@ -74,7 +74,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
   try {
     const imageParts = [filePart];
     const getObjName =
-      "please give me the name of the object in the picture, do not capitalize the first word unless it is a formal name";
+      "please give me the name of the object in the picture, do not capitalize the first word unless it is a formal name, add a or an before it";
     const object = (
       await model.generateContent([getObjName, ...imageParts])
     ).response.text();
@@ -101,7 +101,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>How to do anything!</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
 	<h1>How to make ${object}</h1>
@@ -120,6 +120,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+app.use(express.static(path.join(__dirname, 'public')));
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
