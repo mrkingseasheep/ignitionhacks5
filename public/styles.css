@@ -1,27 +1,28 @@
 
 body {
-    background-color: rgb(200, 220, 226);
+    background-color: #f1e9e7;
+    font-family: 'Courier New', Courier, monospace;
   }
   
   h1 {
-    color: rgb(0, 0, 0);
+    color: #0a0a0a;
     text-align: center;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-family: Georgia, 'Times New Roman', Times, serif
   }
   
   h2 {
-    color: rgb(33, 38, 77);
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    color: rgb(0, 0, 0);
+    font-family: 'Courier New', Courier, monospace;
     
   }
 
   p {
-    font-family: verdana;
+    font-family: 'Courier New', Courier, monospace;
     font-size: 20px;
-    color: rgb(72, 71, 139);
+    color: rgb(0, 0, 0);
   }
   button {
-    background-color: #007BFF; /* Primary Blue */
+    background-color: #9bbbdd; /* Primary Blue */
     color: #FFFFFF; /* White text */
     padding: 12px 24px;
     border: none;
@@ -35,15 +36,20 @@ body {
     cursor: pointer;
     height: 48px
     
+    
 }
 
 /* Hover effect */
 button:hover {
-    background-color: #0056b3; /* Darker Blue */
+    background-color: #527294; /* Darker Blue */
     box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4); /* Blue shadow */
 }
+input:hover {
+  background-color: #527294; /* Darker Blue */
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4); /* Blue shadow */
+}
 input {
-  background-color: #007BFF; /* Primary Blue */
+  background-color: #9bbbdd; /* Primary Blue */
   color: #FFFFFF; /* White text */
   padding: 12px 24px;
   border: none;
@@ -55,6 +61,7 @@ input {
   font-weight: bold;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
+  
 }
 
 
